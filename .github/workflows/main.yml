@@ -2,6 +2,7 @@ name: System image build
 
 permissions:
       contents: write
+      packages: write
 
 env:
   REGISTRY: ghcr.io
