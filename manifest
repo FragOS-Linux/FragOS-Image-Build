@@ -157,11 +157,6 @@ export PACKAGES="\
 	zip \
 "
 
-# Each entry is the clone url (https://aur.archlinux.org/{AUR_PACKAGE}.git)
-# Which is often the same as the package name but it can be different.
-# Check on the AUR webpage if you are unsure
-export AUR_PACKAGES=""
-
 export FLATPAK_PACKAGES=""
 
 export SERVICES="\

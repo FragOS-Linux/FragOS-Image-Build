@@ -65,6 +65,5 @@ jobs:
   build:
     needs:
       - build-docker-image
-      - aur-pkgbuild
     name: Build FragOS STABLE image
     uses: ./.github/workflows/build-system-image.yml
