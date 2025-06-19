@@ -1,0 +1,39 @@
+name: System image build
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build-docker-image:
+    name: Build and publish docker container
+    uses: ./.github/workflows/build-builder.yml
+
+  list-pkgbuilds:
+    name: List Packages
+    runs-on: ubuntu-latest
+    outputs:
+      aur-pkgs: ${{ steps.set-aur-pkgs.outputs.matrix }}
+      pkgs: ${{ steps.set-pkgs.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: set-aur-pkgs
+        run: source ./manifest ; echo "matrix=$(echo ${AUR_PACKAGES} | jq -R -s -c 'split(" ")')" >> $GITHUB_OUTPUT
+        shell: bash
+      - id: set-pkgs
+        run: echo "matrix=$(ls -d pkgs/*/ | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+        shell: bash
+
+  build:
+    needs:
+     - build-docker-image
+    name: Build FragOS UNSTABLE image
+    uses: ./.github/workflows/build-system-image.yml
+    with:
+      postfix: "[UNSTABLE]"
