@@ -25,8 +25,8 @@ RUN pacman -Syu --noconfirm \
     mkinitcpio \
     base-devel
 
-RUN useradd -m builder && echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
-WORKDIR /mnt
+COPY scripts/build.sh /workdir/build-image.sh
+RUN chmod +x /workdir/build-image.sh
 
-CMD ["/mnt/scripts/build.sh"]
+WORKDIR /workdir

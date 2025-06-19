@@ -33,12 +33,8 @@ jobs:
 
     - name: Run FragOS build script inside Docker
       run: |
-        docker run -u root --rm \
-          -v ${{ github.workspace }}:/mnt \
-          -e BUILD_USER=builder \
-          -e OUTPUT_DIR=/mnt/output \
-          fragos-builder \
-          /mnt/scripts/build.sh github
+        docker run -u root --rm --entrypoint=/workdir/build-image.sh -v $(pwd):/workdir -v $(pwd)/output:/output -v $GITHUB_OUTPUT:$GITHUB_OUTPUT -e "GITHUB_OUTPUT=$GITHUB_OUTPUT" --privileged=true ${{ steps.meta.outputs.tags }} $(echo ${GITHUB_SHA} | cut -c1-7)
+          echo -e "$(docker inspect --format='{{index .RepoDigests 0}}' ${{ steps.meta.outputs.tags }})" > output/container.txt
 
     - name: Upload build artifact
       uses: actions/upload-artifact@v4
