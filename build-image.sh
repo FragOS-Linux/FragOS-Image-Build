@@ -60,10 +60,6 @@ cp /etc/pacman.d/mirrorlist rootfs/etc/pacman.d/mirrorlist
 # copy files into chroot
 cp -R manifest rootfs/. ${BUILD_PATH}/
 
-mkdir ${BUILD_PATH}/flatpak_pkgs
-mkdir ${BUILD_PATH}/aur_pkgs
-
-cp -rv aur-pkgs/*.pkg.tar* ${BUILD_PATH}/aur_pkgs
 
 
 # chroot into target
@@ -109,10 +105,6 @@ pacman --noconfirm -Rdd jack2 || true
 
 # install packages
 pacman --noconfirm -S --overwrite '*' --disable-download-timeout ${PACKAGES}
-rm -rf /var/cache/pacman/pkg
-
-# install AUR packages
-pacman --noconfirm -U --overwrite '*' /aur_pkgs/*
 rm -rf /var/cache/pacman/pkg
 
 # Install the new iptables
@@ -207,7 +199,6 @@ fi
 
 # clean up/remove unnecessary files
 rm -rf \
-/aur_pkgs \
 /home \
 /var \
 
