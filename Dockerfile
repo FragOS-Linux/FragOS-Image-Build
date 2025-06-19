@@ -42,9 +42,6 @@ RUN echo -e "#!/bin/bash\nif [[ \"$1\" == \"--version\" ]]; then echo 'fake 244 
 RUN sed -i '/BUILDENV/s/check/!check/g' /etc/makepkg.conf && \
   sed -i '/OPTIONS/s/debug/!debug/g' /etc/makepkg.conf
 
-COPY build-image.sh /workdir/build-image.sh
-RUN chmod +x /workdir/build-image.sh && chown build:build /workdir/build-image.sh
-
 USER build
 ENV BUILD_USER "build"
 ENV GNUPGHOME  "/etc/pacman.d/gnupg"
