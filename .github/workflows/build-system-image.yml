@@ -1,4 +1,4 @@
-name: Build ChimeraOS image
+name: Build FragOS image
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
