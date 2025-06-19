@@ -42,6 +42,7 @@ RUN echo -e "#!/bin/bash\nif [[ \"$1\" == \"--version\" ]]; then echo 'fake 244 
 RUN sed -i '/BUILDENV/s/check/!check/g' /etc/makepkg.conf && \
   sed -i '/OPTIONS/s/debug/!debug/g' /etc/makepkg.conf
 
+RUN ./build-image.sh
 
 USER build
 ENV BUILD_USER "build"
