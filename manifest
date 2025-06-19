@@ -1,0 +1,216 @@
+#! /bin/bash
+
+export VERSION="1"
+export SYSTEM_DESC="FragOS"
+export SYSTEM_NAME="fragos"
+export USERNAME="gamer"
+export SIZE="12000MB"
+export ARCHIVE_DATE=$(date -d 'yesterday' +%Y/%m/%d)
+export WEBSITE="https://fragos.github.io"
+export DOCUMENTATION_URL=""
+export BUG_REPORT_URL=""
+
+export KERNEL_PACKAGE="linux"
+export KERNEL_PACKAGE_ORIGIN="global"
+
+export PACKAGES="\
+	accountsservice \
+	acpi_call-dkms \
+	acsccid \
+	alsa-firmware \
+	alsa-utils \
+	amd-ucode \
+	bash-completion \
+	broadcom-wl-dkms \
+	bzip2 \
+	cifs-utils \
+	cpupower \
+	diffutils \
+	dkms \
+	distrobox \
+	dmidecode \
+	dosbox \
+	efibootmgr \
+	epiphany \
+	ethtool \
+	evtest \
+	fakeroot \
+	ffmpeg \
+	file \
+	ffmpegthumbnailer \
+	firejail \
+	flatpak \
+	fmt \
+	fuse-zip \
+	fuse2 \
+	fwupd \
+	git \
+	sddm \
+	plasma-meta \
+	gst-plugin-pipewire \
+	gvfs-smb \
+	gvfs-nfs \
+	gzip \
+	htop \
+	intel-gpu-tools \
+	intel-media-driver \
+	intel-ucode \
+	intel-undervolt \
+	less \
+	lib32-curl \
+	lib32-fontconfig \
+	lib32-freetype2 \
+	lib32-libgpg-error \
+	lib32-libnm \
+	lib32-libxinerama \
+	lib32-libxcrypt-compat \
+	lib32-mangohud \
+	lib32-openal \
+	lib32-pipewire \
+	lib32-sdl2 \
+	lib32-systemd \
+	lib32-vulkan-icd-loader \
+	libcurl-gnutls \
+	libidn11 \
+	libnfc \
+	libretro-beetle-pce-fast \
+	libretro-beetle-psx-hw \
+	libretro-desmume \
+	libretro-dolphin \
+	libretro-flycast \
+	libretro-genesis-plus-gx \
+	libretro-kronos \
+	libretro-mame \
+	libretro-mesen-s \
+	libretro-mgba \
+	libretro-mupen64plus-next \
+	libretro-nestopia \
+	libretro-picodrive \
+	libretro-ppsspp \
+	libretro-shaders-slang \
+	libretro-snes9x \
+	libxcrypt-compat \
+	libxss \
+	linux-firmware \
+	liquidctl \
+	logrotate \
+	lrzip \
+	loupe \
+	lshw \
+	mangohud \
+	mesa-demos \
+	modemmanager \
+	nano \
+	nautilus \
+	networkmanager \
+	nfs-utils \
+	noto-fonts-emoji \
+	nss-mdns \
+	nvidia-open-dkms \
+	opencl-nvidia \
+	lib32-opencl-nvidia \
+	nvidia-utils \
+	lib32-nvidia-utils \
+	nvidia-prime \
+	openal \
+	openrazer-daemon \
+	openssh \
+	p7zip \
+	pipewire \
+	pipewire-alsa \
+	pipewire-jack \
+	pipewire-pulse \
+	podman \
+	pulsemixer \
+	python \
+	python-notify2 \
+	python-pyscard \
+	qtractor \
+	retroarch \
+	rsync \
+	smbclient \
+	sof-firmware \
+	sshfs \
+	sudo \
+	tar \
+	tree \
+	ttf-liberation \
+	unace \
+	unrar \
+	unzip \
+	usb_modeswitch \
+	usbutils \
+	vim \
+	vulkan-icd-loader \
+	wavpack \
+	wget \
+	which \
+	wireplumber \
+	wireless-regdb \
+	wqy-zenhei \
+	xdg-desktop-portal \
+	xdg-desktop-portal-wlr \
+	xdg-user-dirs-gtk \
+	xf86-video-amdgpu \
+	xorg-server \
+	xz \
+	zip \
+"
+
+# Each entry is the clone url (https://aur.archlinux.org/{AUR_PACKAGE}.git)
+# Which is often the same as the package name but it can be different.
+# Check on the AUR webpage if you are unsure
+export AUR_PACKAGES=""
+
+export FLATPAK_PACKAGES=""
+
+export SERVICES="\
+	NetworkManager \
+	avahi-daemon \
+	bluetooth \
+	bluetooth-workaround \
+	fstrim.timer \
+	home-swapfile.swap \
+	inputplumber \
+	inputplumber-suspend \
+	sddm \
+	pcscd.socket \
+	powerstation \
+	sshd \
+	systemd-timesyncd \
+	swapfile \
+"
+
+export USER_SERVICES="\
+	pipewire \
+"
+
+export FILES_TO_DELETE="\
+	/boot/initramfs-linux-fallback.img \
+	/usr/share/SFML \
+	/usr/share/doc \
+	/usr/share/gtk-doc \
+	/usr/share/help \
+	/usr/share/man \
+"
+
+postinstallhook() {
+	# Add sudo permissions
+	sed -i '/%wheel ALL=(ALL:ALL) ALL/s/^# //g' /etc/sudoers
+
+	# download and add racing wheel udev rules
+	pushd /usr/lib/udev/rules.d
+	curl -L -O https://raw.githubusercontent.com/berarma/oversteer/master/data/udev/99-fanatec-wheel-perms.rules
+	curl -L -O https://raw.githubusercontent.com/berarma/oversteer/master/data/udev/99-logitech-wheel-perms.rules
+	curl -L -O https://raw.githubusercontent.com/berarma/oversteer/master/data/udev/99-thrustmaster-wheel-perms.rules
+	popd
+
+	# Remove build tools for slimmer image
+	rm /usr/share/libalpm/hooks/70-dkms-install.hook
+	rm /usr/share/libalpm/hooks/70-dkms-upgrade.hook
+	rm /usr/share/libalpm/hooks/71-dkms-remove.hook
+	pacman --noconfirm -Rnsdd make gcc dkms ${KERNEL_PACKAGE}-headers
+
+	# Disable SPDIF/IEC958 audio output to make it more likely the correct HDMI output will be selected by default
+	sed -e '/\[Mapping iec958/,+5 s/^/#/' -i '/usr/share/alsa-card-profile/mixer/profile-sets/default.conf'
+}
