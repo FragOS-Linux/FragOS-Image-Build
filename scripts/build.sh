@@ -161,7 +161,6 @@ PRETTY_NAME="${SYSTEM_DESC} ${DISPLAY_VERSION}"
 ID=${SYSTEM_NAME}
 ID_LIKE=arch' > /usr/lib/os-release
 
-postinstallhook
 
 mkdir -p /usr/var/lib/pacman
 cp -r /var/lib/pacman/local /usr/var/lib/pacman/
@@ -245,21 +244,3 @@ else
 		mv ${SYSTEM_NAME}-${VERSION}.img ${OUTPUT_DIR}
 	fi
 fi
-
-postinstallhook() {
-	# Add sudo permissions
-	sed -i '/%wheel ALL=(ALL:ALL) ALL/s/^# //g' /etc/sudoers
-
-	# download and add racing wheel udev rules
-	pushd /usr/lib/udev/rules.d
-	curl -L -O https://raw.githubusercontent.com/berarma/oversteer/master/data/udev/99-fanatec-wheel-perms.rules
-	curl -L -O https://raw.githubusercontent.com/berarma/oversteer/master/data/udev/99-logitech-wheel-perms.rules
-	curl -L -O https://raw.githubusercontent.com/berarma/oversteer/master/data/udev/99-thrustmaster-wheel-perms.rules
-	popd
-
-	# Remove build tools for slimmer image
-	rm /usr/share/libalpm/hooks/70-dkms-install.hook
-	rm /usr/share/libalpm/hooks/70-dkms-upgrade.hook
-	rm /usr/share/libalpm/hooks/71-dkms-remove.hook
-	pacman --noconfirm -Rnsdd make gcc dkms ${KERNEL_PACKAGE}-headers
-}
