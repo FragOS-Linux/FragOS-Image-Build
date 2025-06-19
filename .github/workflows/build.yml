@@ -33,7 +33,7 @@ jobs:
 
     - name: Run FragOS build script inside Docker
       run: |
-        docker run --rm --privileged \
+        docker run -u root --rm \
           -v ${{ github.workspace }}:/mnt \
           -e BUILD_USER=builder \
           -e OUTPUT_DIR=/mnt/output \
