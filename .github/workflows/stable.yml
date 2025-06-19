@@ -1,5 +1,9 @@
 name: System image build - stable
 
+permissions:
+  contents: write
+
+
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
