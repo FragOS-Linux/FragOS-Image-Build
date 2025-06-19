@@ -41,7 +41,7 @@ jobs:
           /mnt/scripts/build.sh github
 
     - name: Upload build artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: FragOS-${{ github.run_number }}.img.tar.xz
         path: output/*.img.tar.xz
