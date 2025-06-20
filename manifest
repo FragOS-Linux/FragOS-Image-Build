@@ -166,8 +166,6 @@ export SERVICES="\
 	bluetooth-workaround \
 	fstrim.timer \
 	home-swapfile.swap \
-	inputplumber \
-	inputplumber-suspend \
 	sddm \
 	pcscd.socket \
 	powerstation \
