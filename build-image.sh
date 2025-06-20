@@ -105,7 +105,10 @@ rm -rf /var/cache/pacman/pkg
 
 # install flatpak packages
 flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-flatpak install -y flathub ${FLATPAK_PACKAGES}
+if [ -n "${FLATPAK_PACKAGES}" ]; then
+    flatpak install -y --noninteractive flathub ${FLATPAK_PACKAGES}
+fi
+
 
 # Install the new iptables
 # See https://gitlab.archlinux.org/archlinux/packaging/packages/iptables/-/issues/1
