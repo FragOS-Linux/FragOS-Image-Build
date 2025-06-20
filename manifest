@@ -168,7 +168,6 @@ export SERVICES="\
 	home-swapfile.swap \
 	sddm \
 	pcscd.socket \
-	powerstation \
 	sshd \
 	systemd-timesyncd \
 	swapfile \
