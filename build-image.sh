@@ -245,34 +245,65 @@ rm -rf ${MOUNT_PATH}
 rm -rf ${BUILD_IMG}
 
 IMG_FILENAME="${SYSTEM_NAME}-${VERSION}.img.tar.xz"
+SPLIT_PREFIX="${SYSTEM_NAME}-${VERSION}.img.part."
+
 if [ -z "${NO_COMPRESS}" ]; then
-	tar -c -I'xz -8 -T4' -f ${IMG_FILENAME} ${SYSTEM_NAME}-${VERSION}.img
-	rm ${SYSTEM_NAME}-${VERSION}.img
+    # Kompresuj obraz .img do .tar.xz
+    tar -c -I'xz -8 -T4' -f "${IMG_FILENAME}" "${SYSTEM_NAME}-${VERSION}.img"
+    rm "${SYSTEM_NAME}-${VERSION}.img"
 
-	sha256sum ${SYSTEM_NAME}-${VERSION}.img.tar.xz > sha256sum.txt
-	cat sha256sum.txt
+    # Sprawdź rozmiar pliku
+    FILESIZE=$(stat -c%s "${IMG_FILENAME}")
 
-	# Move the image to the output directory, if one was specified.
-	if [ -n "${OUTPUT_DIR}" ]; then
-		mkdir -p "${OUTPUT_DIR}"
-		mv ${IMG_FILENAME} ${OUTPUT_DIR}
-		mv build_info.txt ${OUTPUT_DIR}
-		mv sha256sum.txt ${OUTPUT_DIR}
-	fi
+    # Jeśli plik przekracza 2GB (limit GitHub Releases)
+    if [ "${FILESIZE}" -gt 2147483648 ]; then
+        echo "Plik przekracza 2 GB – dzielę go na części po 1900 MB..."
+        split -b 1900M "${IMG_FILENAME}" "${SPLIT_PREFIX}"
+        rm "${IMG_FILENAME}"  # usuń oryginalny plik po podziale
 
-	# set outputs for github actions
-	if [ -f "${GITHUB_OUTPUT}" ]; then
-		echo "version=${VERSION}" >> "${GITHUB_OUTPUT}"
-		echo "display_version=${DISPLAY_VERSION}" >> "${GITHUB_OUTPUT}"
-		echo "display_name=${SYSTEM_DESC}" >> "${GITHUB_OUTPUT}"
-		echo "image_filename=${IMG_FILENAME}" >> "${GITHUB_OUTPUT}"
-	else
-		echo "No github output file set"
-	fi
+        # Wygeneruj sumy kontrolne dla wszystkich części
+        sha256sum ${SPLIT_PREFIX}* > sha256sum.txt
+    else
+        # Dla małych plików: zwykła suma kontrolna
+        sha256sum "${IMG_FILENAME}" > sha256sum.txt
+    fi
+
+    cat sha256sum.txt
+
+    # Przenieś pliki do katalogu wyjściowego
+    if [ -n "${OUTPUT_DIR}" ]; then
+        mkdir -p "${OUTPUT_DIR}"
+
+        # Sprawdź czy są części img.part.*
+        if ls ${SPLIT_PREFIX}* 1> /dev/null 2>&1; then
+            mv ${SPLIT_PREFIX}* "${OUTPUT_DIR}"
+        else
+            mv "${IMG_FILENAME}" "${OUTPUT_DIR}"
+        fi
+
+        mv build_info.txt "${OUTPUT_DIR}"
+        mv sha256sum.txt "${OUTPUT_DIR}"
+    fi
+
+    # Ustaw zmienne wyjściowe dla GitHub Actions
+    if [ -f "${GITHUB_OUTPUT}" ]; then
+        echo "version=${VERSION}" >> "${GITHUB_OUTPUT}"
+        echo "display_version=${DISPLAY_VERSION}" >> "${GITHUB_OUTPUT}"
+        echo "display_name=${SYSTEM_DESC}" >> "${GITHUB_OUTPUT}"
+
+        if ls ${SPLIT_PREFIX}* 1> /dev/null 2>&1; then
+            echo "image_filename=${SPLIT_PREFIX}*" >> "${GITHUB_OUTPUT}"
+        else
+            echo "image_filename=${IMG_FILENAME}" >> "${GITHUB_OUTPUT}"
+        fi
+    else
+        echo "No github output file set"
+    fi
+
 else
-	echo "Local build, output IMG directly"
-	if [ -n "${OUTPUT_DIR}" ]; then
-		mkdir -p "${OUTPUT_DIR}"
-		mv ${SYSTEM_NAME}-${VERSION}.img ${OUTPUT_DIR}
-	fi
+    echo "Local build, output IMG directly"
+    if [ -n "${OUTPUT_DIR}" ]; then
+        mkdir -p "${OUTPUT_DIR}"
+        mv "${SYSTEM_NAME}-${VERSION}.img" "${OUTPUT_DIR}"
+    fi
 fi
