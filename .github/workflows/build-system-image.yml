@@ -20,7 +20,6 @@ jobs:
       version: ${{ steps.build_image.outputs.version }}
       display_name: ${{ steps.build_image.outputs.display_name }}
       display_version: ${{ steps.build_image.outputs.display_version }}
-      image_filename: ${{ steps.build_image.outputs.image_filename }}
     steps:
       - name: Maximize build space
         run: |
@@ -33,27 +32,39 @@ jobs:
           sudo rm -rf /opt/hostedtoolcache
           sudo rm -rf /opt/az
           df -h
+
       - uses: actions/checkout@v4
+
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
       - uses: actions/download-artifact@v4
         with:
-            pattern: AUR-packages*
-            merge-multiple: true
-            path: aur-pkgs/
+          pattern: AUR-packages*
+          merge-multiple: true
+          path: aur-pkgs/
+
       - uses: actions/download-artifact@v4
         with:
-            pattern: Packages*
-            merge-multiple: true
-            path: pkgs/
+          pattern: Packages*
+          merge-multiple: true
+          path: pkgs/
+
       - name: Build system image
         id: build_image
         run: |
           docker pull ${{ steps.meta.outputs.tags }}
-          docker run -u root --rm --entrypoint=/workdir/build-image.sh -v $(pwd):/workdir -v $(pwd)/output:/output -v $GITHUB_OUTPUT:$GITHUB_OUTPUT -e "GITHUB_OUTPUT=$GITHUB_OUTPUT" --privileged=true ${{ steps.meta.outputs.tags }} $(echo ${GITHUB_SHA} | cut -c1-7)
+          docker run -u root --rm --entrypoint=/workdir/build-image.sh \
+            -v $(pwd):/workdir \
+            -v $(pwd)/output:/output \
+            -v $GITHUB_OUTPUT:$GITHUB_OUTPUT \
+            -e "GITHUB_OUTPUT=$GITHUB_OUTPUT" \
+            --privileged=true \
+            ${{ steps.meta.outputs.tags }} $(echo ${GITHUB_SHA} | cut -c1-7)
+
       - name: Create release
         id: create_release
         uses: softprops/action-gh-release@v2
@@ -66,6 +77,18 @@ jobs:
           prerelease: true
           fail_on_unmatched_files: true
           files: |
-            output/${{ steps.build_image.outputs.image_filename }}
             output/build_info.txt
             output/sha256sum.txt
+
+      - name: Upload split image parts to release
+        if: always()
+        run: |
+          sudo apt-get update && sudo apt-get install -y gh
+          TAG="${{ steps.build_image.outputs.version }}"
+          cd output
+          for part in *.img.part.*; do
+            echo "Uploading $part to release $TAG"
+            gh release upload "$TAG" "$part" --clobber || true
+          done
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
