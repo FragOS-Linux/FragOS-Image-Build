@@ -86,7 +86,7 @@ jobs:
           sudo apt-get update && sudo apt-get install -y gh
           TAG="${{ steps.build_image.outputs.version }}"
           cd output
-          for part in *.img.part.*; do
+          for part in *.img.tar.xz.part.*; do
             echo "Uploading $part to release $TAG"
             gh release upload "$TAG" "$part" --clobber || true
           done
