@@ -282,6 +282,7 @@ if [ -n "${OUTPUT_DIR}" ]; then
     fi
 
     mv sha256sum.txt "${OUTPUT_DIR}"
+    mv build_info.txt "${OUTPUT_DIR}"
 fi
 
 # Set GitHub Actions outputs if available
