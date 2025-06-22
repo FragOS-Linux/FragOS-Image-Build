@@ -46,7 +46,7 @@ export PACKAGES="\
 	fwupd \
 	git \
 	sddm \
-	plasma-meta \
+	plasma \
 	gst-plugin-pipewire \
 	gvfs-smb \
 	gvfs-nfs \

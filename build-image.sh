@@ -245,39 +245,47 @@ rm -rf ${MOUNT_PATH}
 rm -rf ${BUILD_IMG}
 
 IMG_FILENAME="${SYSTEM_NAME}-${VERSION}.img"
-SPLIT_PREFIX="${SYSTEM_NAME}-${VERSION}.img.part."
+COMPRESSED_IMG="${IMG_FILENAME}.tar.xz"
+SPLIT_PREFIX="${COMPRESSED_IMG}.part."
 
-# Sprawdź rozmiar pliku
-FILESIZE=$(stat -c%s "${IMG_FILENAME}")
+# Compress the image with strong xz compression (change to zstd if desired)
+tar -I 'xz -9 -e' -cf "${COMPRESSED_IMG}" "${IMG_FILENAME}"
 
+# Remove the original uncompressed image
+rm -f "${IMG_FILENAME}"
+
+# Check the size of the compressed file
+FILESIZE=$(stat -c%s "${COMPRESSED_IMG}")
+
+# If larger than 2GB, split into 1900MB parts
 if [ "${FILESIZE}" -gt 2147483648 ]; then
-    echo "Plik przekracza 2 GB – dzielę go na części po 1900 MB..."
-    split -b 1900M "${IMG_FILENAME}" "${SPLIT_PREFIX}"
-    rm "${IMG_FILENAME}"  # usuń oryginalny plik po podziale
+    echo "File exceeds 2 GB – splitting into 1900 MB parts..."
+    split -b 1900M "${COMPRESSED_IMG}" "${SPLIT_PREFIX}"
+    rm "${COMPRESSED_IMG}"  # remove original compressed file after splitting
 
-    # Wygeneruj sumy SHA256 dla każdej części
+    # Generate SHA256 checksums for all parts
     sha256sum ${SPLIT_PREFIX}* > sha256sum.txt
 else
-    # Jeśli plik < 2 GB, zostaje w całości
-    sha256sum "${IMG_FILENAME}" > sha256sum.txt
+    # If file is less than 2GB, keep it as is
+    sha256sum "${COMPRESSED_IMG}" > sha256sum.txt
 fi
 
-# Przenieś do OUTPUT_DIR jeśli ustawiono
+# Move files to OUTPUT_DIR if specified
 if [ -n "${OUTPUT_DIR}" ]; then
     mkdir -p "${OUTPUT_DIR}"
 
-    # Sprawdź czy istnieją części
+    # Move split parts if they exist
     if ls ${SPLIT_PREFIX}* 1>/dev/null 2>&1; then
         mv ${SPLIT_PREFIX}* "${OUTPUT_DIR}"
     else
-        mv "${IMG_FILENAME}" "${OUTPUT_DIR}"
+        mv "${COMPRESSED_IMG}" "${OUTPUT_DIR}"
     fi
 
-    mv build_info.txt sha256sum.txt "${OUTPUT_DIR}"
+    mv sha256sum.txt "${OUTPUT_DIR}"
 fi
 
-# Zmienne wyjściowe dla GitHub Actions
-if [ -f "${GITHUB_OUTPUT}" ]; then
+# Set GitHub Actions outputs if available
+if [ -n "${GITHUB_OUTPUT}" ] && [ -f "${GITHUB_OUTPUT}" ]; then
     echo "version=${VERSION}" >> "${GITHUB_OUTPUT}"
     echo "display_version=${DISPLAY_VERSION}" >> "${GITHUB_OUTPUT}"
     echo "display_name=${SYSTEM_DESC}" >> "${GITHUB_OUTPUT}"
@@ -285,7 +293,7 @@ if [ -f "${GITHUB_OUTPUT}" ]; then
     if ls ${SPLIT_PREFIX}* 1>/dev/null 2>&1; then
         echo "image_filename=${SPLIT_PREFIX}*" >> "${GITHUB_OUTPUT}"
     else
-        echo "image_filename=${IMG_FILENAME}" >> "${GITHUB_OUTPUT}"
+        echo "image_filename=${COMPRESSED_IMG}" >> "${GITHUB_OUTPUT}"
     fi
 else
     echo "No github output file set"
