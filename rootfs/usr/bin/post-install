@@ -1,0 +1,14 @@
+#!/bin/bash
+
+if [ $EUID -ne 0 ]; then
+	echo "$(basename $0) must be run as root"
+	exit 1
+fi
+
+USERNAME=gamer
+
+echo "Creating user home directory..."
+mkdir /home/${USERNAME}
+chown ${USERNAME} /home/${USERNAME} -R
+chmod 755 /home/${USERNAME} -R
+systemctl disable post-install.service

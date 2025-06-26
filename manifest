@@ -27,11 +27,10 @@ export PACKAGES="\
 	cpupower \
 	diffutils \
 	dkms \
-	distrobox \
 	dmidecode \
-	dosbox \
 	efibootmgr \
-	epiphany \
+	firefox \
+	konsole \
 	ethtool \
 	evtest \
 	fakeroot \
@@ -101,7 +100,7 @@ export PACKAGES="\
 	mesa-demos \
 	modemmanager \
 	nano \
-	nautilus \
+	dolphin \
 	networkmanager \
 	nfs-utils \
 	noto-fonts-emoji \
@@ -126,7 +125,6 @@ export PACKAGES="\
 	python-notify2 \
 	python-pyscard \
 	qtractor \
-	retroarch \
 	rsync \
 	smbclient \
 	sof-firmware \

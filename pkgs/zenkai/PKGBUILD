@@ -1,0 +1,32 @@
+# Maintainer: Mikołaj Ziółkowski <mikolajziolkowski504@gmail.com>
+
+pkgname=zenkai
+pkgver=r$(date +%s)  # Można też użyć git rev count, patrz niżej
+pkgrel=1
+pkgdesc="A deployment and update system for read-only btrfs subvolume based operating systems"
+arch=('any')
+url="https://github.com/gamer-os/zenkai"
+license=('MIT')
+depends=('btrfs-progs' 'parted' 'libnewt' 'dosfstools' 'jq' 'util-linux')
+makedepends=('git')
+source=("zenkai::git+https://github.com/FragOS-Linux/zenkai.git")
+md5sums=('SKIP')
+
+pkgver() {
+  cd "$srcdir/zenkai"
+  # Generuj wersję: r[numer_commita].[skrócony_hash]
+  echo "r$(git rev-list --count HEAD).$(git rev-parse --short HEAD)"
+}
+
+package() {
+  cd "$srcdir/zenkai"
+
+  install -Dm755 zenkai-bootstrap "$pkgdir/usr/bin/zenkai-bootstrap"
+  install -Dm755 zenkai-deploy "$pkgdir/usr/bin/zenkai-deploy"
+  install -Dm755 __zenkai-deploy "$pkgdir/usr/bin/__zenkai-deploy"
+  install -Dm755 zenkai-release "$pkgdir/usr/bin/zenkai-release"
+  install -Dm755 zenkai-unlock "$pkgdir/usr/bin/zenkai-unlock"
+  install -Dm755 zenkai-initramfs "$pkgdir/usr/bin/zenkai-initramfs"
+  install -Dm644 zenkai-autoupdate.service "$pkgdir/etc/systemd/system/zenkai-autoupdate.service"
+  install -Dm644 zenkai-autoupdate.timer "$pkgdir/etc/systemd/system/zenkai-autoupdate.timer"
+}

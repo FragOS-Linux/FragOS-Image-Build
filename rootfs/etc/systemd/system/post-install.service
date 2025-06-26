@@ -1,0 +1,11 @@
+[Unit]
+Description=FragOS PostInstall
+After=multi-user.target
+
+[Service]
+ExecStart=post-install
+Type=oneshot
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target
