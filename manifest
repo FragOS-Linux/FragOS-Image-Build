@@ -182,7 +182,6 @@ export FILES_TO_DELETE="\
 	/usr/share/doc \
 	/usr/share/gtk-doc \
 	/usr/share/help \
-	/usr/share/man \
 "
 
 postinstallhook() {
