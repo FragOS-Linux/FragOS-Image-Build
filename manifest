@@ -169,6 +169,7 @@ export SERVICES="\
 	sshd \
 	systemd-timesyncd \
 	swapfile \
+	post-install.service \
 "
 
 export USER_SERVICES="\

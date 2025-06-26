@@ -60,7 +60,9 @@ cp /etc/pacman.d/mirrorlist rootfs/etc/pacman.d/mirrorlist
 # copy files into chroot
 cp -R manifest rootfs/. ${BUILD_PATH}/
 
-
+# Copy compiled pkgs
+mkdir ${BUILD_PATH}/local_pkgs
+cp -rv pkgs/*.pkg.tar* ${BUILD_PATH}/local_pkgs
 
 # chroot into target
 mount --bind ${BUILD_PATH} ${BUILD_PATH}
@@ -95,6 +97,11 @@ if [ "$KERNEL_PACKAGE_ORIGIN" == "local" ] ; then
 else
 	pacman --noconfirm -S "${KERNEL_PACKAGE}" "${KERNEL_PACKAGE}-headers"
 fi
+
+# install local packages
+pacman --noconfirm -U --overwrite '*' /local_pkgs/*
+rm -rf /var/cache/pacman/pkg
+
 
 # remove jack2 to prevent conflict with pipewire-jack
 pacman --noconfirm -Rdd jack2 || true

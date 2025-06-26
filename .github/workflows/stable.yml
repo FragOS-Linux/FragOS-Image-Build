@@ -20,6 +20,46 @@ jobs:
     name: Build and publish docker container
     uses: ./.github/workflows/build-builder.yml
 
+
+  list-pkgbuilds:
+    name: List Packages
+    runs-on: ubuntu-latest
+    outputs:
+      pkgs: ${{ steps.set-pkgs.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: set-pkgs
+        run: echo "matrix=$(ls -d pkgs/*/ | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+        shell: bash
+
+
+  pkgbuild:
+    needs:
+     - build-docker-image
+     - list-pkgbuilds
+    name: Build package
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        package: ${{ fromJson(needs.list-pkgbuilds.outputs.pkgs) }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+      - name: Build packages
+        run: |
+          docker pull ${{ steps.meta.outputs.tags }}
+          docker run --rm -v $(pwd):/workdir --entrypoint=/workdir/pkgs/build-package.sh ${{ steps.meta.outputs.tags }} ${{ matrix.package }}
+      - name: Upload Package Archives
+        uses: actions/upload-artifact@v4
+        with:
+            name: Packages-${{ hashFiles(format('{0}/PKGBUILD', matrix.package)) }}
+            path: pkgs/*.pkg.tar*
+
   build:
     needs:
       - build-docker-image
