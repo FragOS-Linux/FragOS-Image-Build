@@ -156,8 +156,8 @@ export PACKAGES="\
 "
 
 export PACKAGE_OVERRIDES="\
-	https://https://github.com/FragOS-Linux/fragos-linux/releases/download/v6.15-3-1/linux-fragos-6.15.3-1-x86_64.pkg.tar.zst \
-	https://https://github.com/FragOS-Linux/fragos-linux/releases/download/v6.15-3-1/linux-fragos-headers-6.15.3-1-x86_64.pkg.tar.zst \
+	https://github.com/FragOS-Linux/fragos-linux/releases/download/v6.15-3-1/linux-fragos-6.15.3-1-x86_64.pkg.tar.zst \
+	https://github.com/FragOS-Linux/fragos-linux/releases/download/v6.15-3-1/linux-fragos-headers-6.15.3-1-x86_64.pkg.tar.zst \
 "
 
 export FLATPAK_PACKAGES=""
