@@ -153,6 +153,9 @@ export PACKAGES="\
 	xorg-server \
 	xz \
 	zip \
+	clang \
+	llvm \
+	lld
 "
 
 export PACKAGE_OVERRIDES="\
