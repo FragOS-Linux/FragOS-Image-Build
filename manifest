@@ -10,8 +10,8 @@ export WEBSITE="https://fragos.github.io"
 export DOCUMENTATION_URL=""
 export BUG_REPORT_URL=""
 
-export KERNEL_PACKAGE="linux"
-export KERNEL_PACKAGE_ORIGIN="global"
+export KERNEL_PACKAGE="linux-fragos"
+export KERNEL_PACKAGE_ORIGIN="local"
 
 export PACKAGES="\
 	accountsservice \
@@ -153,6 +153,11 @@ export PACKAGES="\
 	xorg-server \
 	xz \
 	zip \
+"
+
+export PACKAGE_OVERRIDES="\
+	https://github.com/FragOS/fragos-linux/releases/download/v6.15-3-1/linux-fragos-6.15-3-1-x86_64.pkg.tar.zst \
+	https://github.com/FragOS/fragos-linux/releases/download/v6.15-3-1/linux-fragos-headers-6.15-3-1-x86_64.pkg.tar.zst \
 "
 
 export FLATPAK_PACKAGES=""

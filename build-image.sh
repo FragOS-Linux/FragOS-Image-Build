@@ -60,9 +60,14 @@ cp /etc/pacman.d/mirrorlist rootfs/etc/pacman.d/mirrorlist
 # copy files into chroot
 cp -R manifest rootfs/. ${BUILD_PATH}/
 
+mkdir ${BUILD_PATH}/override_pkgs
 # Copy compiled pkgs
 mkdir ${BUILD_PATH}/local_pkgs
 cp -rv pkgs/*.pkg.tar* ${BUILD_PATH}/local_pkgs
+
+if [ -n "${PACKAGE_OVERRIDES}" ]; then
+	wget --directory-prefix=${BUILD_PATH}/override_pkgs ${PACKAGE_OVERRIDES}
+fi
 
 # chroot into target
 mount --bind ${BUILD_PATH} ${BUILD_PATH}
