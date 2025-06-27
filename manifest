@@ -156,7 +156,6 @@ export PACKAGES="\
 	clang \
 	llvm \
 	lld \
-	kate \
 "
 
 export PACKAGE_OVERRIDES="\
@@ -164,7 +163,9 @@ export PACKAGE_OVERRIDES="\
 	https://github.com/FragOS-Linux/fragos-linux/releases/download/v6.15-3-1/linux-fragos-headers-6.15.3-1-x86_64.pkg.tar.zst \
 "
 
-export FLATPAK_PACKAGES=""
+export FLATPAK_PACKAGES="\
+	org.kde.kate \
+"
 
 export SERVICES="\
 	NetworkManager \
