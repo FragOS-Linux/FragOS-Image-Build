@@ -156,6 +156,10 @@ export PACKAGES="\
 	clang \
 	llvm \
 	lld \
+	steam \
+	gamescope \
+	retroarch \
+	dosbox \
 "
 
 export PACKAGE_OVERRIDES="\
