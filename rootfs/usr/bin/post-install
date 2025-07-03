@@ -11,4 +11,5 @@ echo "Creating user home directory..."
 mkdir /home/${USERNAME}
 chown ${USERNAME} /home/${USERNAME} -R
 chmod 755 /home/${USERNAME} -R
+cp -rp /etc/skel/. /home/${USERNAME}
 systemctl disable post-install.service

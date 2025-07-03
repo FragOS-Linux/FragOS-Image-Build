@@ -1,0 +1,60 @@
+
+Welcome to FragOS - Your Immutable Arch-Based Operating System!
+
+==============================
+🔐 SYSTEM OVERVIEW
+==============================
+FragOS ia an immutable Linux system based on Arch Linux. It uses Btrfs snapshots, GitHub-based image updates, and provides a reliable, minimal, and atomic environment.
+
+All system files are **read-only** and managed via prebuilt images. Your personal data is stored separately and never overwritten.
+
+==============================
+📦 SYSTEM STRUCTURE
+==============================
+- Root filesystem (`/`) is **read-only**
+- `/zenkai_root` — your persistent data (user config, home, etc.)
+- `/zenkai_root/deployments` — contains deployed FragOS system images
+
+==============================
+⚙️ PACKAGE MANAGEMENT
+==============================
+⚠️ **Pacman is disabled in FragOS.**
+You cannot install, update or remove packages using `pacman`!
+
+✅ Use **Flatpak** to install and manage applications:
+Example:
+```bash
+flatpak install flathub org.mozilla.firefox
+flatpak run org.mozilla.firefox
+
+✅ You can also install and update applications using the Discover software center (included by default), which integrates Flatpak.
+
+==============================
+⚙️ BASIC USAGE
+==============================
+System updates are performed using the zenkai-deploy tools, but your system be automatically updated
+
+==============================
+🆘 SUPPORT & TROUBLESHOOTING
+==============================
+Logs: View system logs using journalctl or check /var/log.
+
+Boot issues: You can roll back to a previous image if needed.
+
+Documentation and support: https://github.com/FragOS-Linux
+
+Discord: https://discord.gg/W5EXbXr5wx
+
+==============================
+📄 NOTES
+==============================
+
+Do not delete or modify /zenkai_root unless you know what you're doing.
+
+Only Flatpak is supported for installing applications.
+
+To fully reset your system, you can wipe /zenkai_root and repair using the Zenkai installer.
+
+FragOS is built to be secure, reproducible, and minimal for gaming — changes are made through controlled system image updates only.
+
+Thank you for using FragOS!
